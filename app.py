@@ -1,4 +1,7 @@
 import sys
+from gtts import gTTS
+import pandas as pd
+from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (
     QApplication,
     QWidget,
@@ -7,8 +10,8 @@ from PyQt5.QtWidgets import (
     QLabel,
     QPushButton,
     QFileDialog,
-    QComboBox,
-    QListWidget
+    QListWidget,
+    QLineEdit
 )
 
 class MainWindow(QWidget):
@@ -27,6 +30,18 @@ class MainWindow(QWidget):
         self.listClassNames = QListWidget()
         self.listClassNames.setSelectionMode(QListWidget.MultiSelection)
 
+        self.txtBoxScript = QLineEdit()
+        self.txtBoxDescription = QLineEdit()
+
+        self.txtBoxScript.setPlaceholderText('Type Audio Script...')
+        self.txtBoxDescription.setPlaceholderText('Type Description...')
+
+        self.btnAdd = QPushButton('Add')
+        self.btnExport = QPushButton('Export')
+
+        self.btnAdd.setEnabled(False)
+        self.btnExport.setEnabled(False)
+
     def initLayouts(self):
         self.lytMain = QVBoxLayout()
 
@@ -38,6 +53,12 @@ class MainWindow(QWidget):
 
         self.lytBodyRight = QVBoxLayout()
 
+        self.lytControl = QHBoxLayout()
+
+        #Set Layout Appareance
+
+        self.lytBodyRight.setAlignment(Qt.AlignmentFlag.AlignTop)
+
         #Append Widgets to Layout
 
         self.lytSelectFile.addWidget(self.lblClassNames)
@@ -45,20 +66,29 @@ class MainWindow(QWidget):
 
         self.lytBodyLeft.addWidget(self.listClassNames)
 
+        self.lytBodyRight.addWidget(self.txtBoxScript)
+        self.lytBodyRight.addWidget(self.txtBoxDescription)
+
+        self.lytControl.addWidget(self.btnAdd)
+        self.lytControl.addWidget(self.btnExport)
+
         #Append Layouts to Main Layout
 
         self.lytMain.addLayout(self.lytSelectFile)
 
-        self.lytBody.addLayout(self.lytBodyLeft)
-        self.lytBody.addLayout(self.lytBodyRight)
+        self.lytBody.addLayout(self.lytBodyLeft, stretch = 40)
+        self.lytBody.addLayout(self.lytBodyRight, stretch = 60)
 
         self.lytMain.addLayout(self.lytBody)
 
+        self.lytMain.addLayout(self.lytControl)
+
     def setActions(self):
         self.btnSelectClassNamesFile.clicked.connect(self.selectClassNameFile)
+        self.btnAdd.clicked.connect(self.add)
     
     def initUI(self):
-        self.setGeometry(100, 100, 500, 500)
+        self.setGeometry(100, 100, 400, 200)
         self.setWindowTitle('Audio Dataset Creator')
 
         self.setLayout(self.lytMain)
@@ -79,6 +109,18 @@ class MainWindow(QWidget):
 
             self.listClassNames.addItems(self.classNames)
 
+            self.btnAdd.setEnabled(True)
+            self.btnExport.setEnabled(True)
+
+    def add(self):
+        selectedClasses = [i.text() for i in self.listClassNames.selectedItems()]
+        audioScript = self.txtBoxScript.text()
+        description = self.txtBoxDescription.text()
+
+        print(selectedClasses, audioScript, description)
+
+    def export(self):
+        pass
 
     #Methods
             
