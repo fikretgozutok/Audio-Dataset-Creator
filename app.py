@@ -24,8 +24,8 @@ class MainWindow(QWidget):
         self.lblClassNames = QLabel('...')
         self.btnSelectClassNamesFile = QPushButton('Select File')
 
-        self.cmbBoxClassNames = QListWidget()
-        self.cmbBoxClassNames.setSelectionMode(QListWidget.MultiSelection)
+        self.listClassNames = QListWidget()
+        self.listClassNames.setSelectionMode(QListWidget.MultiSelection)
 
     def initLayouts(self):
         self.lytMain = QVBoxLayout()
@@ -43,7 +43,7 @@ class MainWindow(QWidget):
         self.lytSelectFile.addWidget(self.lblClassNames)
         self.lytSelectFile.addWidget(self.btnSelectClassNamesFile)
 
-        self.lytBodyLeft.addWidget(self.cmbBoxClassNames)
+        self.lytBodyLeft.addWidget(self.listClassNames)
 
         #Append Layouts to Main Layout
 
@@ -77,7 +77,7 @@ class MainWindow(QWidget):
 
             self.lblClassNames.setText(f'{len(self.classNames)} class(es) found!')
 
-            self.cmbBoxClassNames.addItems(self.classNames)
+            self.listClassNames.addItems(self.classNames)
 
 
     #Methods
