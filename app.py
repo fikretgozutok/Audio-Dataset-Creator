@@ -154,9 +154,8 @@ class MainWindow(QWidget):
         
 
     def export(self):
-        exportWindow = ExportWindow(self.dataFrame)
-        exportWindow.show()
-        print("pencere açıldı")
+        self.exportWindow = ExportWindow(self.dataFrame)
+        self.exportWindow.show()
 
     #Methods
             
