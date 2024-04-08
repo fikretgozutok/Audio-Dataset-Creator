@@ -1,6 +1,10 @@
 import sys
-from gtts import gTTS
+import os
+import secrets
+import string
 import pandas as pd
+from exportWindow import ExportWindow
+from gtts import gTTS
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (
     QApplication,
@@ -17,6 +21,20 @@ from PyQt5.QtWidgets import (
 class MainWindow(QWidget):
     def __init__(self):
         super().__init__()
+
+        #Set Fields
+
+        self.outputDir = 'outputs'
+        self.dataFrame = pd.DataFrame(columns = [
+            'class_list',
+            'file_path',
+            'audio_script',
+            'description'
+        ])
+
+        #Function Invokes
+
+        self.setOutputDir()
 
         self.initWidgets()
         self.initLayouts()
@@ -55,7 +73,7 @@ class MainWindow(QWidget):
 
         self.lytControl = QHBoxLayout()
 
-        #Set Layout Appareance
+        #Set Layout Apperaence
 
         self.lytBodyRight.setAlignment(Qt.AlignmentFlag.AlignTop)
 
@@ -86,6 +104,7 @@ class MainWindow(QWidget):
     def setActions(self):
         self.btnSelectClassNamesFile.clicked.connect(self.selectClassNameFile)
         self.btnAdd.clicked.connect(self.add)
+        self.btnExport.clicked.connect(self.export)
     
     def initUI(self):
         self.setGeometry(100, 100, 400, 200)
@@ -116,11 +135,28 @@ class MainWindow(QWidget):
         selectedClasses = [i.text() for i in self.listClassNames.selectedItems()]
         audioScript = self.txtBoxScript.text()
         description = self.txtBoxDescription.text()
+        
+        audioFile = self.createAudio(audioScript)
 
-        print(selectedClasses, audioScript, description)
+        data = {
+            'class_list': ",".join(map(str, selectedClasses)),
+            'file_path': audioFile,
+            'audio_script': audioScript,
+            'description': description
+        }
+
+        self.dataFrame.loc[len(self.dataFrame)] = data
+
+        self.txtBoxScript.setText("")
+        self.txtBoxDescription.setText("")
+
+        self.listClassNames.clearSelection()
+        
 
     def export(self):
-        pass
+        exportWindow = ExportWindow(self.dataFrame)
+        exportWindow.show()
+        print("pencere açıldı")
 
     #Methods
             
@@ -131,7 +167,25 @@ class MainWindow(QWidget):
             content = [l.strip() for l in content]
 
             return content
+        
+    def createAudio(self, script: str) -> str:
+        tts = gTTS(script, lang = 'tr')
 
+        filePath = os.path.join(self.outputDir, self.generateFileName())
+        filePath = f'{filePath}.mp3'
+
+        tts.save(filePath)
+
+        return filePath
+
+    def generateFileName(self, length = 16) -> str:
+        alphabet = string.ascii_letters + string.digits
+        fileName = ''.join(secrets.choice(alphabet) for _ in range(length))
+        return fileName
+    
+    def setOutputDir(self):
+        if not os.path.exists(self.outputDir):
+            os.mkdir(self.outputDir)
 
 def run():
     app = QApplication(sys.argv)
