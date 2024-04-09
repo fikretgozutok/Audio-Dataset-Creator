@@ -15,7 +15,8 @@ from PyQt5.QtWidgets import (
     QPushButton,
     QFileDialog,
     QListWidget,
-    QLineEdit
+    QLineEdit,
+    QMessageBox
 )
 
 class MainWindow(QWidget):
@@ -136,14 +137,23 @@ class MainWindow(QWidget):
         audioScript = self.txtBoxScript.text()
         description = self.txtBoxDescription.text()
         
+        data = {
+            'class_list': (",".join(map(str, selectedClasses)) if len(selectedClasses) != 0 else None),
+            'audio_script': (audioScript if audioScript != '' else None),
+            'description': (description if description != '' else None)
+        }
+
+        if None in list(data.values()):
+            self.showMessage('Fields can not be empty!', 'Error!', QMessageBox.Icon.Warning)
+            return
+        
         audioFile = self.createAudio(audioScript)
 
-        data = {
-            'class_list': ",".join(map(str, selectedClasses)),
-            'file_path': audioFile,
-            'audio_script': audioScript,
-            'description': description
-        }
+        if not audioFile:
+            self.showMessage('Audio file generation error!', 'Error!', QMessageBox.StandardButton.Ok)
+            return
+        
+        data['file_path'] = (audioFile),
 
         self.dataFrame.loc[len(self.dataFrame)] = data
 
@@ -167,7 +177,11 @@ class MainWindow(QWidget):
 
             return content
         
-    def createAudio(self, script: str) -> str:
+    def createAudio(self, script: str) ->  str | None:
+
+        if not script:
+            return
+
         tts = gTTS(script, lang = 'tr')
 
         filePath = os.path.join(self.outputDir, self.generateFileName())
@@ -182,9 +196,27 @@ class MainWindow(QWidget):
         fileName = ''.join(secrets.choice(alphabet) for _ in range(length))
         return fileName
     
-    def setOutputDir(self):
+    def setOutputDir(self) -> None:
         if not os.path.exists(self.outputDir):
             os.mkdir(self.outputDir)
+
+    def showMessage(self, msg: str, windowTitle: str, icon: QMessageBox.Icon) -> None:
+        self.msgBox = QMessageBox()
+        self.msgBox.setIcon(icon)
+        self.msgBox.setWindowTitle(windowTitle)
+        self.msgBox.setText(msg)
+        self.msgBox.setStandardButtons(QMessageBox.StandardButton.Ok)
+        self.msgBox.setDefaultButton(QMessageBox.StandardButton.Ok)
+
+        returnValue = self.msgBox.exec()
+
+        if returnValue == QMessageBox.StandardButton.Ok:
+            self.msgBox.close()
+
+        
+
+        
+
 
 def run():
     app = QApplication(sys.argv)
