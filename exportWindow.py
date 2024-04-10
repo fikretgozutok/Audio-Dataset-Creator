@@ -1,5 +1,6 @@
-import sys
 import pandas as pd
+from functools import partial
+from CustomWidgets.QTableButton import QTableButton
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (
     QWidget,
@@ -24,14 +25,15 @@ class ExportWindow(QWidget):
         self.setActions()
         self.initUI()
 
+        self.setBtnExportSelectionMode()
         self.setTable()
 
-    def initWidgets(self):
+    def initWidgets(self) -> None:
         self.tblData = QTableWidget()
 
         self.btnExport = QPushButton('Export as .csv file')
 
-    def initLayouts(self):
+    def initLayouts(self) -> None:
         self.lytMain = QVBoxLayout()
 
         self.lytTable = QVBoxLayout()
@@ -56,10 +58,10 @@ class ExportWindow(QWidget):
 
         self.lytControl.setAlignment(Qt.AlignmentFlag.AlignBottom)
 
-    def setActions(self):
+    def setActions(self) -> None:
         self.btnExport.clicked.connect(self.export)
 
-    def initUI(self):
+    def initUI(self) -> None:
         self.setGeometry(200, 200, 600, 400)
         self.setWindowTitle('Export')
 
@@ -67,14 +69,14 @@ class ExportWindow(QWidget):
 
     #Actions
 
-    def export(self):
+    def export(self) -> None:
         self.dataFrame.to_csv('./outputs/data.csv')
 
         self.close()
 
     #Methods
 
-    def setTable(self):
+    def setTable(self) -> None:
         rowCount = self.dataFrame.shape[0]
         colCount = self.dataFrame.shape[1]
 
@@ -84,7 +86,21 @@ class ExportWindow(QWidget):
         self.tblData.setHorizontalHeaderLabels(self.dataFrame.columns)
 
         for i in range(rowCount):
-            for j in range(colCount):
-                item = QTableWidgetItem(str(self.dataFrame.iloc[i, j]))
+            for index, j in enumerate(range(colCount + 1)):
+
+                item = None
+
+                if index == colCount:
+                    btnDelete = QTableButton(rowIndex = i, txt = 'Delete!')
+                    btnDelete.clicked.connect(partial(self.deleteRecord, btnDelete.getRowIndex()))
+                    item = QTableWidgetItem()
+                else:
+                    item = QTableWidgetItem(str(self.dataFrame.iloc[i, j]))
 
                 self.tblData.setItem(i, j, item)
+
+    def deleteRecord(self, rowIndex: int):
+        print(rowIndex)
+
+    def setBtnExportSelectionMode(self) -> None:
+        self.btnExport.setEnabled(True if len(self.dataFrame) > 0 else False)
