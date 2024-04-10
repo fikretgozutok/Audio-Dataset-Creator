@@ -1,3 +1,7 @@
 venv/
 __pycache__/
+<<<<<<< HEAD
 outputs/
+=======
+outputs/
+>>>>>>> b825d1f124a1fde1c47dc3434dec2f67c8938c3c
