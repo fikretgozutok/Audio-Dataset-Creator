@@ -2,10 +2,12 @@ import sys
 import os
 import secrets
 import string
+import json
 import pandas as pd
 from exportWindow import ExportWindow
 from gtts import gTTS
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (
     QApplication,
     QWidget,
@@ -25,17 +27,21 @@ class MainWindow(QWidget):
 
         #Set Fields
 
-        self.outputDir = 'outputs'
-        self.dataFrame = pd.DataFrame(columns = [
+        self.outputDir: str = 'outputs'
+        self.dataFrame: pd.DataFrame = pd.DataFrame(columns = [
             'class_list',
             'file_path',
             'audio_script',
             'description'
         ])
 
+        self.lang: str = None
+
         #Function Invokes
 
         self.setOutputDir()
+        self.setLanguage()
+
 
         self.initWidgets()
         self.initLayouts()
@@ -111,6 +117,8 @@ class MainWindow(QWidget):
         self.setGeometry(100, 100, 400, 200)
         self.setWindowTitle('Audio Dataset Creator')
 
+        self.setWindowIcon(QIcon('ico.ico'))
+
         self.setLayout(self.lytMain)
 
     #Actions
@@ -182,7 +190,7 @@ class MainWindow(QWidget):
         if not script:
             return
 
-        tts = gTTS(script, lang = 'tr')
+        tts = gTTS(script, lang = self.lang)
 
         filePath = os.path.join(self.outputDir, self.generateFileName())
         filePath = f'{filePath}.mp3'
@@ -214,9 +222,11 @@ class MainWindow(QWidget):
             self.msgBox.close()
 
         
+    def setLanguage(self):
+        with open('settings.json', 'r') as file:
+            data = json.load(file)
 
-        
-
+            self.lang = data['lang']
 
 def run():
     app = QApplication(sys.argv)

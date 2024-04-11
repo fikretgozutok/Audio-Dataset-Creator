@@ -2,6 +2,7 @@ import pandas as pd
 from functools import partial
 from customWidgets.QTableButton import QTableButton
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (
     QWidget,
     QVBoxLayout,
@@ -66,6 +67,8 @@ class ExportWindow(QWidget):
         self.setGeometry(200, 200, 600, 400)
         self.setWindowTitle('Export')
 
+        self.setWindowIcon(QIcon('ico.ico'))
+
         self.setLayout(self.lytMain)
 
     #Actions
@@ -78,6 +81,9 @@ class ExportWindow(QWidget):
     #Methods
 
     def setTable(self) -> None:
+
+        self.tblData.clear()
+
         rowCount = self.dataFrame.shape[0]
         colCount = self.dataFrame.shape[1]
 
@@ -87,21 +93,20 @@ class ExportWindow(QWidget):
         self.tblData.setHorizontalHeaderLabels(self.dataFrame.columns)
 
         for i in range(rowCount):
-            for index, j in enumerate(range(colCount + 1)):
+            for j in range(colCount):
 
-                item = None
-
-                if index == colCount:
-                    btnDelete = QTableButton(rowIndex = i, txt = 'Delete')
+                if j == (colCount - 1):
+                    btnDelete = QTableButton(rowIndex = i, txt = 'Delete!')
                     btnDelete.clicked.connect(partial(self.deleteRecord, btnDelete.getRowIndex()))
-                    item = QTableWidgetItem(btnDelete)
+                    self.tblData.setCellWidget(i, j, btnDelete)
                 else:
                     item = QTableWidgetItem(str(self.dataFrame.iloc[i, j]))
+                    self.tblData.setItem(i, j, item)
 
-                self.tblData.setItem(i, j, item)
-
-    def deleteRecord(self, rowIndex: int):
-        print(rowIndex)
+    def deleteRecord(self, rowIndex: int) -> None:
+        self.dataFrame.drop(rowIndex, inplace = True)
+        self.setTable()
+        self.setBtnExportSelectionMode()
 
     def expandDataFrame(self):
         self.dataFrame[' '] = None
