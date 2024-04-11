@@ -123,6 +123,9 @@ class MainWindow(QWidget):
 
     #Actions
     def selectClassNameFile(self):
+
+        self.listClassNames.clear()
+
         fileDialog = QFileDialog()
         fileDialog.setWindowTitle('Select Class Name File')
         fileDialog.setFileMode(QFileDialog.ExistingFile)
