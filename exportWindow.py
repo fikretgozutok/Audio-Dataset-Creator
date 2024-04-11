@@ -1,6 +1,6 @@
 import pandas as pd
 from functools import partial
-from CustomWidgets.QTableButton import QTableButton
+from customWidgets.QTableButton import QTableButton
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (
     QWidget,
@@ -26,6 +26,7 @@ class ExportWindow(QWidget):
         self.initUI()
 
         self.setBtnExportSelectionMode()
+        self.expandDataFrame()
         self.setTable()
 
     def initWidgets(self) -> None:
@@ -91,9 +92,9 @@ class ExportWindow(QWidget):
                 item = None
 
                 if index == colCount:
-                    btnDelete = QTableButton(rowIndex = i, txt = 'Delete!')
+                    btnDelete = QTableButton(rowIndex = i, txt = 'Delete')
                     btnDelete.clicked.connect(partial(self.deleteRecord, btnDelete.getRowIndex()))
-                    item = QTableWidgetItem()
+                    item = QTableWidgetItem(btnDelete)
                 else:
                     item = QTableWidgetItem(str(self.dataFrame.iloc[i, j]))
 
@@ -101,6 +102,9 @@ class ExportWindow(QWidget):
 
     def deleteRecord(self, rowIndex: int):
         print(rowIndex)
+
+    def expandDataFrame(self):
+        self.dataFrame[' '] = None
 
     def setBtnExportSelectionMode(self) -> None:
         self.btnExport.setEnabled(True if len(self.dataFrame) > 0 else False)
