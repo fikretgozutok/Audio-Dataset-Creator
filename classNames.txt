@@ -1,3 +1,4 @@
 person
-car
-traffic_lights
+cat
+remote
+cellphone
